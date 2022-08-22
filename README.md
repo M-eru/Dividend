@@ -9,7 +9,8 @@ Dividend is a web application that allows you to search for stock dividend yield
 
 ## Technologies
 
-- [Django](https://www.djangoproject.com/)
+- [Flask](https://flask.palletsprojects.com/en/2.2.x/)
+- [Jinja](https://jinja.palletsprojects.com/en/3.1.x/)
 - [Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/)
 
 ## Contributing
