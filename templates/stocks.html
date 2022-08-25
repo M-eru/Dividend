@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script>
+    function search() {
+        let input = document.getElementById('searchbar').value
+        input = input.toLowerCase();
+        let x = document.getElementsByClassName('company');
+
+        for (i = 0; i < x.length; i++) {
+            if (!x[i].innerHTML.toLowerCase().includes(input)) {
+                x[i].style.display = "none";
+            }
+            else {
+                x[i].style.display = "initial";
+            }
+        }
+    }
+</script>
+
+<title>{% block title %} View Stocks {% endblock %}</title>
+{% endblock %}
+
+{% block body %}
+<div class="d-flex p-5">
+    <div class="container text-center">
+        <h2 class="mb-5">List of Stocks</h2>
+        <hr>
+        <p class="lead mb-3 pt-4 py-5 pb-3">Stocks that we provide information on. <br> Click on a stock to view its
+            information.
+        </p>
+        <div class="d-flex input-group pb-5 justify-content-center ">
+            <div id="search" class="form-floating">
+                <input type="search" id="searchbar" class="form-control" placeholder="Search for stocks"
+                    onkeyup="search()" />
+                <label class="form-label" for="searchbar">Search</label>
+            </div>
+            <button type="button" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <hr>
+        <ul class="mt-5 list-group">
+            {% for company in data %}
+            <a href="/stocks/{{company}}" class="text-decoration-none text-dark list-group-item company">{{company}}</a>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endblock %}
