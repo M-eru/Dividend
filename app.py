@@ -34,7 +34,8 @@ def views(name):
     dict = query()
     for key in dict:
         if key == name:
-            yields = {}
+            yields = []
+            dates = []
             data = requests.get(f"https://www.dividends.sg{dict[key]}")
             # print(dict[key])
             # print(data.text)
@@ -42,11 +43,11 @@ def views(name):
             for data in soup.find_all('td', {'class': None, 'rowspan': None, 'vertical-align': None}):
                 value = data.text.strip()
                 if 'SGD' in value or value == '-':
-                    print(f"Amount: {value}")
+                    yields.append(value)
                 else:
-                    print(f"Ex Date: {value}")
+                    dates.append(value)
             break
-    return render_template("view.html")
+    return render_template("view.html", yields=yields, dates=dates, name=name)
 
 
 if __name__ == "__main__":

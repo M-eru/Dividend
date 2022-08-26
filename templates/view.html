@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %} {{name}} Dividend Yield {% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block body %}
+<div class="d-flex p-5">
+    <div class="container text-center">
+        <h2 class="mb-5">{{name}} Dividend Yield</h2>
+        <hr>
+        <p class="lead mb-3 pt-4 py-5 pb-3"> <br> Click on the filter icon below to filter
+            yields by date.
+        </p>
+        <div class="d-flex pb-5 justify-content-center ">
+            <button type="button" class="btn btn-primary btn">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Ex Date</th>
+                    <th scope="col">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in range(dates|length) %}
+                <tr>
+                    <td>{{dates[n]}}</td>
+                    <td>{{yields[n]}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
