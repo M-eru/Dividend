@@ -20,6 +20,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th scope="col">Year</th>
                     <th scope="col">Ex Date</th>
                     <th scope="col">Amount</th>
                 </tr>
@@ -27,6 +28,7 @@
             <tbody>
                 {% for n in range(dates|length) %}
                 <tr>
+                    <td>{{years[n]}}</td>
                     <td>{{dates[n]}}</td>
                     <td>{{yields[n]}}</td>
                 </tr>
