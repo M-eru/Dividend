@@ -17,23 +17,40 @@ def query():
             dict[title] = stats
     return dict
 
+
 def process(dict, name):
     for key in dict:
         if key == name:
-            yields = []
-            dates = []
+            d = {}
+            y = {}
             years = []
+            count = 0
             data = requests.get(f"https://www.dividends.sg{dict[key]}")
             soup = BeautifulSoup(data.text, "html.parser")
             for data in soup.find_all('td', {'class': None, 'rowspan': None, 'vertical-align': None}):
                 value = data.text.strip()
-                if 'SGD' in value or value == '-':
-                    yields.append(value)
+                if 'SGD' in value:
+                    d[count] = {}
+                    d[count]["amount"] = value
+                    d[count]["value"] = float(value[3:])
+                elif value =='-':
+                    d[count] = {}
+                    d[count]["amount"] = value
+                    d[count]["value"] = 0
                 else:
                     dt = datetime.strptime(value, '%Y-%m-%d')
-                    years.append(dt.year)
-                    dates.append(value)
-            return yields, dates, years
+                    d[count]["year"] = dt.year
+                    d[count]["date"] = value
+                    if dt.year not in y:
+                        years.append(dt.year)
+                        y[dt.year] = {}
+                        y[dt.year]["value"] = d[count]["value"]
+                        y[dt.year]["count"] = 1
+                    else:
+                        y[dt.year]["value"] += d[count]["value"]
+                        y[dt.year]["count"] += 1
+                    count += 1
+            return d, y, years
 
 
 @app.route("/")
@@ -50,8 +67,8 @@ def stocks():
 @app.route("/stocks/<name>")
 def views(name):
     dict = query()
-    yields, dates, years = process(dict, name)
-    return render_template("view.html", yields=yields, dates=dates, years=years, name=name)
+    data, years, year = process(dict, name)
+    return render_template("view.html", data=data, years=years, year=year, name=name)
 
 
 if __name__ == "__main__":

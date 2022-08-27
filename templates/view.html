@@ -17,20 +17,36 @@
                 <i class="fas fa-filter"></i>
             </button>
         </div>
-        <table class="table">
+        <table class="table table-bordered border-primary">
             <thead>
                 <tr>
                     <th scope="col">Year</th>
+                    <th scope="col">Total</th>
                     <th scope="col">Ex Date</th>
                     <th scope="col">Amount</th>
                 </tr>
             </thead>
             <tbody>
-                {% for n in range(dates|length) %}
+                {% for n in range(year|length) %}
                 <tr>
-                    <td>{{years[n]}}</td>
-                    <td>{{dates[n]}}</td>
-                    <td>{{yields[n]}}</td>
+                    <td class="align-middle" rowspan="{{years[year[n]]['count']}}">{{year[n]}}</td>
+                    <td class="align-middle" rowspan="{{years[year[n]]['count']}}">
+                        {{years[year[n]]["value"]|round(3, 'floor')}}</td>
+                    {% for key in data if data[key]["year"] == year[n]  %}
+                    {% if loop.index == 1 %}
+                    {% set ns = namespace() %}
+                    {% set ns.data = data %}
+                    {% set ns.key = key %}
+                    <td>{{data[key]["date"]}}</td>
+                    <td>{{data[key]["amount"]}}</td>
+                    {% for n in range(1, years[year[n]]['count']) %}
+                        <tr>
+                            <td>{{ns.data[ns.key+n]["date"]}}</td>
+                            <td>{{ns.data[ns.key+n]["amount"]}}</td>
+                        </tr>
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
                 </tr>
                 {% endfor %}
             </tbody>
