@@ -8,7 +8,7 @@
         <h2 class="mb-5">{{name}} Dividend Yield</h2>
         <hr>
         <p class="lead mb-3 pt-4 py-5 pb-3">Click on the filter icon below to filter
-            yields by date. <br> Fields highlighted in green are eligible dividends within the time period.
+            yields by date. <br> Fields highlighted in light gray are eligible dividends within the time period.
         </p>
         <div class="d-flex pb-5 justify-content-center ">
             <button type="button" class="btn btn-primary btn" data-bs-toggle="modal" data-bs-target="#filterModal">
@@ -28,8 +28,8 @@
                 {% for n in range(year|length) %}
                 <tr>
                     {% if years[year[n]]["status"] == "True" %}
-                    <td class="align-middle table-success" rowspan="{{years[year[n]]['count']}}">{{year[n]}}</td>
-                    <td class="align-middle table-success" rowspan="{{years[year[n]]['count']}}">
+                    <td class="align-middle table-light" rowspan="{{years[year[n]]['count']}}">{{year[n]}}</td>
+                    <td class="align-middle table-light" rowspan="{{years[year[n]]['count']}}">
                         {{years[year[n]]["value"]|round(3, 'floor')}}</td>
                     {% else %}
                     <td class="align-middle" rowspan="{{years[year[n]]['count']}}">{{year[n]}}</td>
@@ -42,8 +42,8 @@
                     {% set ns.data = data %}
                     {% set ns.key = key %}
                     {% if data[key]["status"] == "True" %}
-                    <td class="table-success">{{data[key]["date"]}}</td>
-                    <td class="table-success">{{data[key]["amount"]}}</td>
+                    <td class="table-light">{{data[key]["date"]}}</td>
+                    <td class="table-light">{{data[key]["amount"]}}</td>
                     {% else %}
                     <td>{{data[key]["date"]}}</td>
                     <td>{{data[key]["amount"]}}</td>
@@ -51,8 +51,8 @@
                     {% for n in range(1, years[year[n]]['count']) %}
                     {% if ns.data[ns.key+n]["status"] == "True" %}
                 <tr>
-                    <td class="table-success">{{ns.data[ns.key+n]["date"]}}</td>
-                    <td class="table-success">{{ns.data[ns.key+n]["amount"]}}</td>
+                    <td class="table-light">{{ns.data[ns.key+n]["date"]}}</td>
+                    <td class="table-light">{{ns.data[ns.key+n]["amount"]}}</td>
                 </tr>
                 {% else %}
                 <tr>
