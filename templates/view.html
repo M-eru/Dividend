@@ -2,22 +2,20 @@
 
 {% block title %} {{name}} Dividend Yield {% endblock %}
 
-{% block navbar %}{% endblock %}
-
 {% block body %}
 <div class="d-flex p-5">
     <div class="container text-center">
         <h2 class="mb-5">{{name}} Dividend Yield</h2>
         <hr>
-        <p class="lead mb-3 pt-4 py-5 pb-3"> <br> Click on the filter icon below to filter
-            yields by date.
+        <p class="lead mb-3 pt-4 py-5 pb-3">Click on the filter icon below to filter
+            yields by date. <br> Fields highlighted in green are the results of the filter.
         </p>
         <div class="d-flex pb-5 justify-content-center ">
-            <button type="button" class="btn btn-primary btn">
+            <button type="button" class="btn btn-primary btn" data-bs-toggle="modal" data-bs-target="#filterModal">
                 <i class="fas fa-filter"></i>
             </button>
         </div>
-        <table class="table table-bordered border-primary">
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     <th scope="col">Year</th>
@@ -29,28 +27,88 @@
             <tbody>
                 {% for n in range(year|length) %}
                 <tr>
+                    {% if years[year[n]]["status"] == "True" %}
+                    <td class="align-middle table-success" rowspan="{{years[year[n]]['count']}}">{{year[n]}}</td>
+                    <td class="align-middle table-success" rowspan="{{years[year[n]]['count']}}">
+                        {{years[year[n]]["value"]|round(3, 'floor')}}</td>
+                    {% else %}
                     <td class="align-middle" rowspan="{{years[year[n]]['count']}}">{{year[n]}}</td>
                     <td class="align-middle" rowspan="{{years[year[n]]['count']}}">
                         {{years[year[n]]["value"]|round(3, 'floor')}}</td>
-                    {% for key in data if data[key]["year"] == year[n]  %}
+                    {% endif %}
+                    {% for key in data if data[key]["year"] == year[n] %}
                     {% if loop.index == 1 %}
                     {% set ns = namespace() %}
                     {% set ns.data = data %}
                     {% set ns.key = key %}
+                    {% if data[key]["status"] == "True" %}
+                    <td class="table-success">{{data[key]["date"]}}</td>
+                    <td class="table-success">{{data[key]["amount"]}}</td>
+                    {% else %}
                     <td>{{data[key]["date"]}}</td>
                     <td>{{data[key]["amount"]}}</td>
-                    {% for n in range(1, years[year[n]]['count']) %}
-                        <tr>
-                            <td>{{ns.data[ns.key+n]["date"]}}</td>
-                            <td>{{ns.data[ns.key+n]["amount"]}}</td>
-                        </tr>
-                    {% endfor %}
                     {% endif %}
-                    {% endfor %}
+                    {% for n in range(1, years[year[n]]['count']) %}
+                    {% if ns.data[ns.key+n]["status"] == "True" %}
+                <tr>
+                    <td class="table-success">{{ns.data[ns.key+n]["date"]}}</td>
+                    <td class="table-success">{{ns.data[ns.key+n]["amount"]}}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td>{{ns.data[ns.key+n]["date"]}}</td>
+                    <td>{{ns.data[ns.key+n]["amount"]}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+                {% endfor %}
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Date Filter for Dividend Yields</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('submitFilter') }}" method="post" onsubmit="return dateCheck()">
+                <div class="modal-body">
+                    <input type="hidden" class="form-control" id="companyName" name="companyName" value="{{name}}">
+                    <div class="mb-3">
+                        <label for="buyDate" class="col-form-label">Buy Date:</label>
+                        <input type="date" class="form-control" id="buyDate" name="buyDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sellDate" class="col-form-label">Sell Date:</label>
+                        <input type="date" class="form-control" id="sellDate" name="sellDate">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function dateCheck() {
+        var startDate = document.getElementById("buyDate").value;
+        var endDate = document.getElementById("sellDate").value;
+
+        if ((Date.parse(endDate) <= Date.parse(startDate))) {
+            alert("Sell date should be greater than Buy date!");
+            document.getElementById("sellDate").value = "";
+            return false
+        }
+    };
+</script>
 {% endblock %}

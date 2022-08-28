@@ -1,6 +1,7 @@
-from flask import Flask, render_template
-from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for
+from datetime import datetime, timedelta, date
 import requests
+import pandas
 from bs4 import BeautifulSoup
 
 app = Flask(__name__, template_folder="templates")
@@ -31,10 +32,12 @@ def process(dict, name):
                 value = data.text.strip()
                 if 'SGD' in value:
                     d[count] = {}
+                    d[count]["status"] = "False"
                     d[count]["amount"] = value
                     d[count]["value"] = float(value[3:])
-                elif value =='-':
+                elif value == '-':
                     d[count] = {}
+                    d[count]["status"] = "False"
                     d[count]["amount"] = value
                     d[count]["value"] = 0
                 else:
@@ -44,6 +47,7 @@ def process(dict, name):
                     if dt.year not in y:
                         years.append(dt.year)
                         y[dt.year] = {}
+                        y[dt.year]["status"] = "False"
                         y[dt.year]["value"] = d[count]["value"]
                         y[dt.year]["count"] = 1
                     else:
@@ -51,6 +55,20 @@ def process(dict, name):
                         y[dt.year]["count"] += 1
                     count += 1
             return d, y, years
+
+
+def getDates(buyDate, sellDate):
+    dates = pandas.date_range(
+        start=buyDate, end=sellDate, freq='d').strftime('%Y-%m-%d').tolist()
+    return dates
+
+
+def status(dict, ydict, d):
+    for key in dict:
+        if dict[key]["date"] in d:
+            dict[key]["status"] = "True"
+            ydict[dict[key]["year"]]["status"] = "True"
+    return dict, ydict
 
 
 @app.route("/")
@@ -66,9 +84,31 @@ def stocks():
 
 @app.route("/stocks/<name>")
 def views(name):
-    dict = query()
-    data, years, year = process(dict, name)
-    return render_template("view.html", data=data, years=years, year=year, name=name)
+    buyDate = request.args.get('buyDate', default=None)
+    sellDate =  request.args.get('sellDate', default=None)
+    if buyDate == None and sellDate == None:
+        dict = query()
+        data, years, year = process(dict, name)
+        return render_template("view.html", data=data, years=years, year=year, name=name)
+    else:
+        dates = getDates(buyDate, sellDate)
+        dict = query()
+        d, y, year = process(dict, name)
+        data, years = status(d, y, dates)
+        return render_template("view.html", data=data, years=years, year=year, name=name)
+
+
+@app.route("/submitFilter", methods=['POST'])
+def submitFilter():
+    if request.method == "POST":
+        name = request.form["companyName"]
+        buyDate = request.form['buyDate']
+        sellDate = request.form['sellDate']
+        if sellDate == '':
+            sellDate = datetime.today().strftime('%Y-%m-%d')
+        return redirect(url_for("views", name=name, buyDate=buyDate, sellDate=sellDate))
+    else:
+        return render_template("view.html")
 
 
 if __name__ == "__main__":
