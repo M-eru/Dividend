@@ -64,11 +64,14 @@ def getDates(buyDate, sellDate):
 
 
 def status(dict, ydict, d):
+    total = 0
     for key in dict:
         if dict[key]["date"] in d:
             dict[key]["status"] = "True"
+            total += dict[key]["value"]
             ydict[dict[key]["year"]]["status"] = "True"
-    return dict, ydict
+    total = round(total, 3)
+    return dict, ydict, total
 
 
 @app.route("/")
@@ -85,7 +88,7 @@ def stocks():
 @app.route("/stocks/<name>")
 def views(name):
     buyDate = request.args.get('buyDate', default=None)
-    sellDate =  request.args.get('sellDate', default=None)
+    sellDate = request.args.get('sellDate', default=None)
     if buyDate == None and sellDate == None:
         dict = query()
         data, years, year = process(dict, name)
@@ -94,8 +97,8 @@ def views(name):
         dates = getDates(buyDate, sellDate)
         dict = query()
         d, y, year = process(dict, name)
-        data, years = status(d, y, dates)
-        return render_template("view.html", data=data, years=years, year=year, name=name)
+        data, years, total = status(d, y, dates)
+        return render_template("view.html", data=data, years=years, year=year, total=total, name=name)
 
 
 @app.route("/submitFilter", methods=['POST'])
